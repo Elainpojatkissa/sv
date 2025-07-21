@@ -3,17 +3,50 @@
 <head>
   <title>Live Screen Viewer</title>
   <style>
-    body { margin: 0; background: black; text-align: center; }
+    body { margin: 0; background: black; text-align: center; color: white; font-family: Arial, sans-serif; }
     img { width: 100%; height: auto; }
+    #status { margin: 10px; font-weight: bold; }
+    #log { max-height: 200px; overflow-y: auto; background: #222; padding: 10px; font-size: 12px; text-align: left; }
   </style>
 </head>
 <body>
-  <h2 style="color: white">Live Screen</h2>
-  <img id="screen" />
+  <h2>Live Screen</h2>
+  <div id="status">Connecting...</div>
+  <img id="screen" alt="Live screen will appear here" />
+  <div id="log"></div>
+
   <script>
-    const socket = new WebSocket("ws://192.168.68.107:8765"); // Change to your IP or Ngrok URL
-    const screen = document.getElementById("screen");
+    const status = document.getElementById('status');
+    const log = document.getElementById('log');
+    const screen = document.getElementById('screen');
+
+    function addLog(msg) {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+      console.log(msg);
+    }
+
+    const socket = new WebSocket("ws://192.168.68.107:8765");
+
+    socket.onopen = () => {
+      status.textContent = '✅ Connected to server';
+      addLog('WebSocket opened');
+    };
+
+    socket.onerror = (error) => {
+      status.textContent = '❌ Connection error';
+      addLog('WebSocket error: ' + (error.message || error));
+    };
+
+    socket.onclose = (event) => {
+      status.textContent = '⚠️ Connection closed';
+      addLog('WebSocket closed, code: ' + event.code + ', reason: ' + event.reason);
+    };
+
     socket.onmessage = (event) => {
+      status.textContent = '📡 Receiving screen data...';
       screen.src = 'data:image/jpeg;base64,' + event.data;
     };
   </script>
