@@ -11,7 +11,7 @@
   <h2 style="color: white">Live Screen</h2>
   <img id="screen" />
   <script>
-    const socket = new WebSocket("ws://localhost:8765"); // Change to your IP or Ngrok URL
+    const socket = new WebSocket("192.168.68.107"); // Change to your IP or Ngrok URL
     const screen = document.getElementById("screen");
     socket.onmessage = (event) => {
       screen.src = 'data:image/jpeg;base64,' + event.data;
